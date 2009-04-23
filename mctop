@@ -36,6 +36,7 @@ foreach ($configpath as $path)
  }
  $loadedcfg[] = $path;
 }
+$term->enable_color = (bool) $usecolor;
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
 $ver = '0.3b';
 $fields = array(
@@ -178,13 +179,20 @@ for (;;)
 }
 class Terminal
 {
+ public $enable_color;
  public function readln()
  {
   return fgets(STDIN);
  }
  public function clearScreen() {echo "\x0c";}
- public function setStyle($c) {echo "\033[".$c.'m';}
- public function resetStyle() {echo "\033[0m";}
+ public function setStyle($c)
+ {
+  if ($this->enable_color) {echo "\033[".$c.'m';}
+ }
+ public function resetStyle()
+ {
+  if ($this->enable_color) {echo "\033[0m";}
+ }
  public function drawTable($rows)
  {
   $pad = array();
