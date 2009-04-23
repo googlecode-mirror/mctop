@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?php
-/* mctop v.0.1b (http://code.google.com/p/mctop)
+/* mctop v.0.3b (http://code.google.com/p/mctop)
    Written by kak.serpom.po.yaitsam@gmail.com
    Project is under LGPL (Lesser GNU Public License).
    Coding took several hours :-) Welcome any feedback.
@@ -37,7 +37,7 @@ foreach ($configpath as $path)
  $loadedcfg[] = $path;
 }
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
-$ver = '0.1b';
+$ver = '0.3b';
 $fields = array(
  'server' => "SERVER",
  'usage' => 'USAGE',
