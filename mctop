@@ -9,15 +9,31 @@ $servers = array('127.0.0.1:11211');
 $configpath = array('./mctop.conf','/etc/mctop.conf');
 $format = 'server,capacity,usage,hit,conn,uptime,rps,wps,evict';
 $refresh = 1;
+$usecolor = 1;
 $loadedcfg = array();
+$term = new Terminal;
 foreach ($configpath as $path)
 {
  if (!file_exists($path)) {continue;}
  $conf = parse_ini_file($path,TRUE);
- if (!isset($conf['mctop'])) {echo 'Config ('.$path.") error: 'mctop' section not found."; continue;}
- if (isset($conf['mctop']['format'])) {$format = $conf['mctop']['format'];}
- if (isset($conf['mctop']['refresh'])) {$refresh = $conf['mctop']['refresh'];}
- if (isset($conf['mctop']['servers'])) {$servers = $conf['mctop']['servers'];}
+ if (!isset($conf['mctop']))
+ {
+  echo 'Config ('.$path.") error: 'mctop' section not found. Press ENTER to continue.\n";
+  $term->readln();
+  continue;
+ }
+ foreach ($conf['mctop'] as $k => $v)
+ {
+  if ($k == 'format') {$format = $v;}
+  elseif ($k == 'refresh') {$refresh = $v;}
+  elseif ($k == 'servers') {$servers = $v;}
+  elseif ($k == 'usecolor') {$usecolor = $v;}
+  else
+  {
+   echo 'Config ('.$path.") warning: unsupported key 'mctop/".$k."'. Press ENTER to continue.\n";
+   $term->readln();
+  }
+ }
  $loadedcfg[] = $path;
 }
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
@@ -40,7 +56,6 @@ $memcache->setOption(Memcached::OPT_TCP_NODELAY,TRUE);
 $format = explode(',',$format);
 foreach ($servers as $k => $v) {$servers[$k] = explode(':',$v);}
 $memcache->addServers($servers);
-$term = new Terminal;
 for (;;)
 {
  $srvtable = array();
@@ -163,6 +178,10 @@ for (;;)
 }
 class Terminal
 {
+ public function readln()
+ {
+  return fgets(STDIN);
+ }
  public function clearScreen() {echo "\x0c";}
  public function setStyle($c) {echo "\033[".$c.'m';}
  public function resetStyle() {echo "\033[0m";}
