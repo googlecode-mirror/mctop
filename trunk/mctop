@@ -150,7 +150,7 @@ for (;;)
  $srvtable[] = $total;
  $srvtable[] = $average;
  $term->clearScreen();
- echo 'mctop v.'.$ver." by kak.serpom.po.yaitsam@gmail.com (http://code.google.com/p/mctop)\n"
+ echo 'mctop v.'.$ver." (http://code.google.com/p/mctop)\n"
  ."Refresh: ".$refresh." sec. Config-files: ".$loadedcfg.". Ctrl-C to quit.\n"
  ."\n";
  $term->drawTable($srvtable);
