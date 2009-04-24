@@ -132,8 +132,11 @@ for (;;)
  $srvtable[] = array('_' => '');
  $average = array();
  $total = array();
+ $j = $c;
+ while (!$row || isset($row['_'])) {$row = $srvtable[--$j];}
  foreach ($row as $k => $v)
  {
+  if (substr($k,0,1) == '_') {continue;}
   $avg = round($sum[$k]/$c,2);
   $total[$k] = '';
   if ($k == 'capacity')
@@ -189,7 +192,7 @@ class Memcached_EmbeddedClient
  {
   $addr = $host.':'.$port;
   if (isset($this->pool[$addr])) {return $this->pool[$addr];}
-  if ($socket = fsockopen($host,$port,$errno,$errstr,0.5))
+  if ($socket = @fsockopen($host,$port,$errno,$errstr,1))
   {
    return $this->pool[$addr] = $socket;
   }
@@ -203,20 +206,23 @@ class Memcached_EmbeddedClient
    $addr = $k[0].':'.$k[1];
    $conn = $this->getConnection($k[0],$k[1]);
    if (!$conn) {$stat = FALSE;}
-   fwrite($conn,"stats\n");
-   $stat = array();
-   $buf = '';
-   while (($line = fgets($conn)) !== FALSE)
+   else
    {
-    $buf .= $line;
-    if (substr($buf,-1) != "\n") {continue;}
-    if (substr($buf,-2,1) == "\r") {$buf = substr($buf,0,-2);}
-    else {$buf = substr($buf,0,-2);}
-    $e = explode("\x20",$buf,3);
-    if ($e[0] == 'END') {break;}
-    elseif ($e[0] == 'STAT') {$stat[$e[1]] = $e[2];}
-    else {$this->protoError('Unrecognized reply \''.$e[0].'\'.');}
+    fwrite($conn,"stats\n");
+    $stat = array();
     $buf = '';
+    while (($line = fgets($conn)) !== FALSE)
+    {
+     $buf .= $line;
+     if (substr($buf,-1) != "\n") {continue;}
+     if (substr($buf,-2,1) == "\r") {$buf = substr($buf,0,-2);}
+     else {$buf = substr($buf,0,-2);}
+     $e = explode("\x20",$buf,3);
+     if ($e[0] == 'END') {break;}
+     elseif ($e[0] == 'STAT') {$stat[$e[1]] = $e[2];}
+     else {$this->protoError('Unrecognized reply \''.$e[0].'\'.');}
+     $buf = '';
+    }
    }
    $bunch[$addr] = $stat;
   }
