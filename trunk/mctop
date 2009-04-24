@@ -1,6 +1,6 @@
 #!/usr/bin/php -q
 <?php
-/* mctop v.0.5 (http://code.google.com/p/mctop)
+/* mctop v.0.5.1 (http://code.google.com/p/mctop)
    Written by kak.serpom.po.yaitsam@gmail.com
    Project is under LGPL (Lesser GNU Public License).
    Coding took several hours :-) Welcome any feedback.
@@ -38,7 +38,7 @@ foreach ($configpath as $path)
 }
 $term->enable_color = (bool) $usecolor;
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
-$ver = '0.5';
+$ver = '0.5.1';
 $fields = array(
  'server' => "SERVER",
  'usage' => 'USAGE',
