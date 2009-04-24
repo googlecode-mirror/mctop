@@ -50,10 +50,7 @@ $fields = array(
  'rps' => 'R/s',
  'wps' => 'W/s',
 );
-$memcache = new Memcached;
-$memcache->setOption(Memcached::OPT_SERVER_FAILURE_LIMIT,1);
-$memcache->setOption(Memcached::OPT_CONNECT_TIMEOUT,1000);
-$memcache->setOption(Memcached::OPT_TCP_NODELAY,TRUE);
+$memcache = new Memcached_EmbeddedClient;
 $format = explode(',',$format);
 foreach ($servers as $k => $v) {$servers[$k] = explode(':',$v);}
 $memcache->addServers($servers);
@@ -176,6 +173,55 @@ for (;;)
  ."\n";
  $term->drawTable($srvtable);
  sleep($refresh);
+}
+class Memcached_EmbeddedClient
+{
+ public $servers = array();
+ public function addServers($servers)
+ {
+  $this->servers = array_merge($this->servers,$servers);
+ }
+ public $pool = array();
+ public function protoError($msg)
+ {
+ }
+ public function getConnection($host,$port)
+ {
+  $addr = $host.':'.$port;
+  if (isset($this->pool[$addr])) {return $this->pool[$addr];}
+  if ($socket = fsockopen($host,$port,$errno,$errstr,0.5))
+  {
+   return $this->pool[$addr] = $socket;
+  }
+  else {return FALSE;}
+ }
+ public function getStats()
+ {
+  $bunch = array();
+  foreach ($this->servers as $k)
+  {
+   $addr = $k[0].':'.$k[1];
+   $conn = $this->getConnection($k[0],$k[1]);
+   if (!$conn) {$stat = FALSE;}
+   fwrite($conn,"stats\n");
+   $stat = array();
+   $buf = '';
+   while (($line = fgets($conn)) !== FALSE)
+   {
+    $buf .= $line;
+    if (substr($buf,-1) != "\n") {continue;}
+    if (substr($buf,-2,1) == "\r") {$buf = substr($buf,0,-2);}
+    else {$buf = substr($buf,0,-2);}
+    $e = explode("\x20",$buf,3);
+    if ($e[0] == 'END') {break;}
+    elseif ($e[0] == 'STAT') {$stat[$e[1]] = $e[2];}
+    else {$this->protoError('Unrecognized reply \''.$e[0].'\'.');}
+    $buf = '';
+   }
+   $bunch[$addr] = $stat;
+  }
+  return $bunch;
+ }
 }
 class Terminal
 {
