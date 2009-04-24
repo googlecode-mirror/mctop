@@ -9,7 +9,7 @@ $servers = array('127.0.0.1:11211');
 $configpath = array('./mctop.conf','/etc/mctop.conf');
 $format = 'server,capacity,usage,hit,conn,uptime,rps,wps,evict';
 $refresh = 1;
-$usecolor = 1;
+$enable_color = 1;
 $loadedcfg = array();
 $term = new Terminal;
 foreach ($configpath as $path)
@@ -27,7 +27,7 @@ foreach ($configpath as $path)
   if ($k == 'format') {$format = $v;}
   elseif ($k == 'refresh') {$refresh = $v;}
   elseif ($k == 'servers') {$servers = $v;}
-  elseif ($k == 'usecolor') {$usecolor = $v;}
+  elseif ($k == 'usecolor' or $k == 'enable_color') {$enable_color = $v;}
   else
   {
    echo 'Config ('.$path.") warning: unsupported key 'mctop/".$k."'. Press ENTER to continue.\n";
@@ -36,7 +36,7 @@ foreach ($configpath as $path)
  }
  $loadedcfg[] = $path;
 }
-$term->enable_color = (bool) $usecolor;
+$term->enable_color = (bool) $enable_color;
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
 $ver = '0.5.1';
 $fields = array(
