@@ -3,7 +3,6 @@
 /* mctop v.0.5.1 (http://code.google.com/p/mctop)
    Written by kak.serpom.po.yaitsam@gmail.com
    Project is under LGPL (Lesser GNU Public License).
-   Coding took several hours :-) Welcome any feedback.
 */
 $servers = array('127.0.0.1:11211');
 $configpath = array('./mctop.conf','/etc/mctop.conf');
@@ -81,6 +80,7 @@ for (;;)
     if (!$stat)
     {
      $row['_'] = $srv.' is DOWN.';
+     $row['_color'] = '37';
      break;
     }
     ++$c;
