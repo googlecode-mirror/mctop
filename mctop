@@ -5,7 +5,7 @@
    Project is under LGPL (Lesser GNU Public License).
 */
 $servers = array('127.0.0.1:11211');
-$configpath = array('./mctop.conf','/etc/mctop.conf');
+$configpath = array(dirname(__FILE__).'/mctop.conf','/etc/mctop.conf');
 $format = 'server,capacity,usage,hit,conn,uptime,rps,wps,evict';
 $refresh = 1;
 $enable_color = 1;
