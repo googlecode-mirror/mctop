@@ -1,9 +1,10 @@
 #!/usr/bin/php -q
 <?php
-/* mctop v.0.5.2 (http://code.google.com/p/mctop)
+/* mctop v.0.5.3 (http://code.google.com/p/mctop)
    Written by kak.serpom.po.yaitsam@gmail.com
    Project is under LGPL (Lesser GNU Public License).
 */
+$ver = '0.5.3';
 $servers = array('127.0.0.1:11211');
 $configpath = array(dirname(__FILE__).'/mctop.conf','/etc/mctop.conf');
 $format = 'server,capacity,usage,hit,conn,uptime,rps,wps,evict';
@@ -37,7 +38,6 @@ foreach ($configpath as $path)
 }
 $term->enable_color = (bool) $enable_color;
 $loadedcfg = sizeof($loadedcfg)?implode(',',$loadedcfg):'N/A';
-$ver = '0.5.2';
 $fields = array(
  'server' => "SERVER",
  'usage' => 'USAGE',
