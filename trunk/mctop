@@ -53,6 +53,7 @@ $memcache = new Memcached_EmbeddedClient;
 $format = explode(',',$format);
 foreach ($servers as $k => $v) {$servers[$k] = explode(':',$v);}
 $memcache->addServers($servers);
+$ops = array();
 for (;;)
 {
  $srvtable = array();
@@ -69,6 +70,7 @@ for (;;)
   $srv = $addr[0].':'.$addr[1];
   if (isset($info[$srv])) {$stat = $info[$srv];}
   else {$stat = FALSE;}
+  if (!isset($ops[$srv])) {$ops[$srv] = array();}
   $row = array();
   $i = 0;
   foreach ($format as &$f)
@@ -80,7 +82,7 @@ for (;;)
     if (!$stat)
     {
      $row['_'] = $srv.' is DOWN.';
-     $row['_color'] = '37';
+     $row['_color'] = '1;31';
      break;
     }
     ++$c;
@@ -100,15 +102,45 @@ for (;;)
     $row[$f] = round($stat['get_hits']/$stat['cmd_get']*100,2).'%';
     $sum[$f] += round($stat['get_hits']/$stat['cmd_get']*100,2);
    }
-   elseif ($f == 'rps')
+   elseif ($f == 'avgrps')
    {
     $row[$f] = round($stat['cmd_get']/$stat['uptime'],2);
     $sum[$f] += $row[$f];
    }
-   elseif ($f == 'wps')
+   elseif ($f == 'avgwps')
    {
     $row[$f] = round($stat['cmd_set']/$stat['uptime'],2);
     $sum[$f] += $row[$f];
+   }
+   elseif ($f == 'rps')
+   {
+    $mt = microtime(TRUE);
+    if (isset($ops[$srv]['get_mtime']))
+    {
+     $dt = $mt-$ops[$srv]['get_mtime'];
+     $dc = $stat['cmd_get']-$ops[$srv]['cmd_get'];
+     if ($dc < 0) {$dc = 0;}
+     $row[$f] = round($dc/$dt,2);
+     $sum[$f] += $row[$f];
+    }
+    else {$row[$f] = '~';}
+    $ops[$srv]['get_mtime'] = $mt;
+    $ops[$srv]['cmd_get'] = $stat['cmd_get'];
+   }
+   elseif ($f == 'wps')
+   {
+    $mt = microtime(TRUE);
+    if (isset($ops[$srv]['set_mtime']))
+    {
+     $dt = $mt-$ops[$srv]['set_mtime'];
+     $dc = $stat['cmd_set']-$ops[$srv]['cmd_set'];
+     if ($dc < 0) {$dc = 0;}
+     $row[$f] = round($dc/$dt,2);
+     $sum[$f] += $row[$f];
+    }
+    else {$row[$f] = '~';}
+    $ops[$srv]['set_mtime'] = $mt;
+    $ops[$srv]['cmd_set'] = $stat['cmd_set'];
    }
    elseif ($f == 'evict')
    {
