@@ -1,7 +1,7 @@
 OWNER = root
 GROUP = wheel
 CFGDIR=/etc
-BINDIR=/usr/local/bin
+BINDIR=/usr/bin
 INSTALL=install
 all: 
 install:
